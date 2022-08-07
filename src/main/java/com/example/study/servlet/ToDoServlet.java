@@ -123,6 +123,7 @@ public class ToDoServlet extends HttpServlet {
             int num = pstmt.executeUpdate();
             if (num == 0) {
                 errorResponse(response, 404);
+                return;
             }
             ResultSet rs = pstmt.getGeneratedKeys();
             int generatedkey = 0;
@@ -143,8 +144,34 @@ public class ToDoServlet extends HttpServlet {
             errorResponse(response, 405);
             return;
         }
-
-        // FIXME not implemented yet.
+        int id = -1;
+        try {
+            id = Integer.parseInt(requestPath.substring(1));
+        } catch (NumberFormatException e) {
+            errorResponse(response, 404);
+            return;
+        }
+        String sql = "update todo set id = ?, title = ?, done = ? where id = ?";
+        ToDoItem toDoItem = readToDoItemFromBody(request);
+        if (toDoItem.getId() != id) {
+            errorResponse(response, 400);
+            return;
+        }
+        try (Connection conn = Database.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);) {
+            pstmt.setInt(1, toDoItem.getId());
+            pstmt.setString(2, toDoItem.getTitle());
+            pstmt.setBoolean(3, toDoItem.isDone());
+            pstmt.setInt(4, id);
+            int num = pstmt.executeUpdate();
+            if (num == 0) {
+                errorResponse(response, 404);
+                return;
+            }
+            writeJsonResponse(response, toDoItem);
+        } catch (SQLException e) {
+            throw new ServletException(e);
+        }
     }
 
     @Override

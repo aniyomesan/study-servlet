@@ -3,3 +3,6 @@ curl -X POST -H "Content-Type: application/json" -d '{"title": "test", "done": t
 
 2. GET
 curl -X GET 'http://localhost:8080/api/v1/todos'
+
+3. PUT
+curl -X PUT -H "Content-Type: application/json" -d '{"id": 1, "title": "test", "done": true }' 'http://localhost:8080/api/v1/todos/1'
