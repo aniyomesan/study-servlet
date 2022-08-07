@@ -117,7 +117,7 @@ public class ToDoServlet extends HttpServlet {
         String sql = "insert into todo (title, done) values (?, ?)";
 
         try (Connection conn = Database.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
             pstmt.setString(1, toDoItem.getTitle());
             pstmt.setBoolean(2, toDoItem.isDone());
             int num = pstmt.executeUpdate();
@@ -159,15 +159,15 @@ public class ToDoServlet extends HttpServlet {
         }
         try (Connection conn = Database.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql);) {
+            if (!checkExistence(conn, id)) {
+                errorResponse(response, 404);
+                return;
+            }
             pstmt.setInt(1, toDoItem.getId());
             pstmt.setString(2, toDoItem.getTitle());
             pstmt.setBoolean(3, toDoItem.isDone());
             pstmt.setInt(4, id);
-            int num = pstmt.executeUpdate();
-            if (num == 0) {
-                errorResponse(response, 404);
-                return;
-            }
+            pstmt.executeUpdate();
             writeJsonResponse(response, toDoItem);
         } catch (SQLException e) {
             throw new ServletException(e);
@@ -181,8 +181,25 @@ public class ToDoServlet extends HttpServlet {
             errorResponse(response, 405);
             return;
         }
-
-        // FIXME not implemented yet.
+        int id = -1;
+        try {
+            id = Integer.parseInt(requestPath.substring(1));
+        } catch (NumberFormatException e) {
+            errorResponse(response, 404);
+            return;
+        }
+        String sql = "delete from todo where id = ?";
+        try (Connection conn = Database.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql);) {
+            if (!checkExistence(conn, id)) {
+                errorResponse(response, 404);
+                return;
+            }
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+            response.setStatus(204);
+        } catch (SQLException e) {
+            throw new ServletException();
+        }
     }
 
     private boolean checkExistence(Connection conn, int id) throws SQLException {
