@@ -1,0 +1,57 @@
+plugins {
+	id 'java'
+    id 'war'
+    id 'eclipse'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'com.github.sahara3.tomcat-runner' version '0.2.1'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+dependencyManagement {
+    dependencies {
+        dependency 'org.projectlombok:lombok:1.18.24'
+        dependency 'com.google.code.findbugs:jsr305:3.0.2'
+        dependency 'javax.servlet:javax.servlet-api:4.0.1'
+        dependency 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+        dependency 'com.h2database:h2:2.1.214'
+    }
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+    compileOnly 'com.google.code.findbugs:jsr305'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    providedCompile 'javax.servlet:javax.servlet-api'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.h2database:h2'
+}
+
+tasks.withType(AbstractCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += [
+        '-Xlint:all', '-Xlint:-processing', '-Xlint:-fallthrough',
+        '-parameters'
+    ]
+}
+
+tomcat {
+    version = 9.0
+    port = 8080
+
+    webapp(project) {
+        contextPath = ''
+    }
+}
