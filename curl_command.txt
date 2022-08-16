@@ -1,5 +1,0 @@
-1. POST
-curl -X POST -H "Content-Type: application/json" -d '{"title": "test", "done": true }' 'http://localhost:8080/api/v1/todos'
-
-2. GET
-curl -X GET 'http://localhost:8080/api/v1/todos'

@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -112,28 +111,7 @@ public class ToDoServlet extends HttpServlet {
             return;
         }
 
-        ToDoItem toDoItem = readToDoItemFromBody(request);
-
-        String sql = "insert into todo (title, done) values (?, ?)";
-
-        try (Connection conn = Database.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setString(1, toDoItem.getTitle());
-            pstmt.setBoolean(2, toDoItem.isDone());
-            int num = pstmt.executeUpdate();
-            if (num == 0) {
-                errorResponse(response, 404);
-            }
-            ResultSet rs = pstmt.getGeneratedKeys();
-            int generatedkey = 0;
-            if (rs.next()) {
-                generatedkey = rs.getInt(1);
-            }
-            toDoItem.setId(generatedkey);
-            writeJsonResponse(response, toDoItem);
-        } catch (SQLException e) {
-            throw new ServletException(e);
-        }
+        // FIXME not implemented yet.
     }
 
     @Override
